@@ -1,0 +1,6 @@
+#!/bin/bash
+
+useradd -m -s /bin/bash fydelis
+echo "fydelis:fydelis" | chpasswd
+
+usermod -aG sudo,audio,video,netdev fydelis

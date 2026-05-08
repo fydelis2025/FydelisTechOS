@@ -1,0 +1,11 @@
+#!/bin/bash
+
+update-alternatives --install \
+/usr/share/plymouth/themes/default.plymouth \
+default.plymouth \
+/usr/share/plymouth/themes/fydelis/fydelis.plymouth 100
+
+update-alternatives --set default.plymouth \
+/usr/share/plymouth/themes/fydelis/fydelis.plymouth
+
+update-initramfs -u

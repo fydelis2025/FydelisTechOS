@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -e
+
+mkdir -p /etc/lightdm/lightdm.conf.d
+
+cat > /etc/lightdm/lightdm.conf.d/01_fydelis.conf << 'EOF'
+[Seat:*]
+autologin-user=live
+autologin-user-timeout=0
+
+[Greeter]
+background=/usr/share/backgrounds/fydelis/wallpaper.jpg
+theme-name=Adwaita-dark
+icon-theme-name=Papirus-Dark
+EOF

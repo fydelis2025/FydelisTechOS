@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Fydelis
+Description=FydelisTechOS Boot Theme
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/fydelis
+ScriptFile=/usr/share/plymouth/themes/fydelis/fydelis.script

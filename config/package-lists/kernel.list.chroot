@@ -1,0 +1,10 @@
+linux-image-amd64
+
+firmware-linux-free
+firmware-linux-nonfree
+
+firmware-realtek
+firmware-iwlwifi
+
+intel-microcode
+amd64-microcode

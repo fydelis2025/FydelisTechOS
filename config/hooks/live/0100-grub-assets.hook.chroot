@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e
+
+mkdir -p /boot/grub
+
+# arquivo será copiado automaticamente pelo includes.chroot

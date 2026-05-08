@@ -1,0 +1,32 @@
+#!/bin/bash
+# FydelisTechOS - Script de Automação Red Team
+# Criado por: Adiel Santos Fontes
+
+echo "Iniciando a configuração do ambiente FydelisTech..."
+
+# 1. Atualização e Repositórios
+# Garante que as chaves e repositórios de segurança estejam prontos.
+apt-get update
+
+# 2. Instalação de Ferramentas de Red Team & Auditoria
+# Foco em ferramentas que você já utiliza em suas pesquisas.
+apt-get install -y nmap sqlmap exploitdb metasploit-framework \
+                   aircrack-ng wireshark termshark john \
+                   sherlock nikto gobuster
+
+# 3. Personalização da Interface (XFCE)
+# Aplica o branding da FydelisTech para estabelecer sua autoridade.
+# Copia wallpapers e ícones personalizados para as pastas do sistema.
+mkdir -p /usr/share/backgrounds/fydelistech
+# (Aqui você deve ter as imagens no diretório config/includes.chroot/)
+cp /etc/skel/fydelis_wallpaper.png /usr/share/backgrounds/fydelistech/
+
+# 4. Criação de Aliases Úteis
+# Atalhos para facilitar sua vida em campo como analista de segurança.
+echo "alias fydelis-update='sudo apt update && sudo apt upgrade'" >> /etc/skel/.bashrc
+echo "alias check-ip='curl ifconfig.me'" >> /etc/skel/.bashrc
+
+# 5. Limpeza Final
+# Garante que a ISO saia "leve e soltinha" sem cache de pacotes.
+apt-get clean
+rm -rf /var/lib/apt/lists/*

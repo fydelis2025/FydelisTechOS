@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+mkdir -p /etc/default
+mkdir -p /boot/grub
+
+cat >> /etc/default/grub << 'EOF'
+GRUB_BACKGROUND="/boot/grub/fydelis_grub.png"
+GRUB_COLOR_NORMAL="light-gray/black"
+GRUB_COLOR_HIGHLIGHT="light-green/black"
+GRUB_TIMEOUT_STYLE=menu
+GRUB_TIMEOUT=3
+EOF

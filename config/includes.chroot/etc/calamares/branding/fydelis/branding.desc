@@ -1,0 +1,9 @@
+componentName: fydelis
+
+strings:
+  productName: "FydelisTechOS"
+  versionedName: "FydelisTechOS Red Team Edition"
+  shortProductName: "Fydelis"
+  productUrl: "https://fydelistech.blogspot.com/"
+  supportUrl: "https://github.com/fydelis2025"
+  releaseNotesUrl: "https://github.com/fydelis2025"

@@ -1,0 +1,4 @@
+wallpaper_image = Image("background.png");
+wallpaper_sprite = Sprite(wallpaper_image);
+
+wallpaper_sprite.SetZ(-100);

@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+lb config noauto "$@" \
+    --mode debian \
+    --architecture amd64 \
+    --distribution bookworm \
+    --archive-areas "main contrib non-free non-free-firmware" \
+    --debootstrap-options "--variant=minbase" \
+    --apt-recommends false \
+    --apt-indices false \
+    --firmware-binary true \
+    --memtest none \
+    --win32-loader false \
+    --binary-image iso-hybrid \
+    --compression xz \
+    --iso-volume "FYDELISTECHOS" \
+    --iso-publisher "FydelisTech" \
+    --iso-application "FydelisTechOS Red Team Edition" \
+    --bootappend-live "boot=live components locales=pt_BR.UTF-8 keyboard-layouts=br"

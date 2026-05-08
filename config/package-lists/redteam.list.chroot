@@ -1,0 +1,13 @@
+nmap
+netcat-traditional
+tcpdump
+wireshark
+hydra
+sqlmap
+ffuf
+gobuster
+whois
+dnsutils
+proxychains4
+torsocks
+openssh-client
