@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FydelisTechOS — Segurança Ofensiva & Auditoria</title>
+    <meta name="msvalidate.01" content="5CC98A0BFE0C470E2A7BB8F5323C2388" />
+    <meta name="description" content="FydelisTechOS é uma distribuição Debian-based projetada para segurança ofensiva, testes de penetração e auditoria de sistemas.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #0a0c0f;
+            color: #e8edf2;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+        a { color: #00c853; text-decoration: none; transition: color 0.2s; }
+        a:hover { color: #69f0ae; }
+        img { max-width: 100%; height: auto; display: block; }
+        ul { list-style: none; }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            backdrop-filter: blur(16px) saturate(1.8);
+            background: rgba(10, 12, 15, 0.88);
+            border-bottom: 1px solid rgba(0, 200, 83, 0.12);
+            transition: box-shadow 0.3s;
+        }
+        .navbar.scrolled { box-shadow: 0 4px 32px rgba(0, 0, 0, 0.6); }
+        .navbar .container {
+            display: flex; align-items: center; justify-content: space-between;
+            height: 68px;
+        }
+        .nav-brand {
+            display: flex; align-items: center; gap: 12px;
+            font-weight: 700; font-size: 1.25rem; color: #e8edf2;
+        }
+        .nav-brand .logo-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #00c853, #00e676);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1rem; color: #0a0c0f;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .nav-links { display: flex; align-items: center; gap: 32px; }
+        .nav-links a {
+            font-size: 0.875rem; font-weight: 500; color: #9eaaaf;
+            position: relative; transition: color 0.2s;
+        }
+        .nav-links a::after {
+            content: ''; position: absolute; bottom: -4px; left: 0;
+            width: 0; height: 2px; background: #00c853;
+            transition: width 0.3s;
+        }
+        .nav-links a:hover { color: #e8edf2; }
+        .nav-links a:hover::after { width: 100%; }
+        .nav-cta {
+            background: #00c853; color: #0a0c0f !important;
+            padding: 8px 20px; border-radius: 6px;
+            font-weight: 600 !important; font-size: 0.85rem !important;
+            transition: background 0.2s, transform 0.2s !important;
+        }
+        .nav-cta::after { display: none !important; }
+        .nav-cta:hover { background: #00e676; transform: translateY(-1px); color: #0a0c0f !important; }
+
+        /* Hamburger */
+        .hamburger {
+            display: none; flex-direction: column; gap: 5px;
+            cursor: pointer; padding: 4px; background: none; border: none;
+        }
+        .hamburger span {
+            width: 26px; height: 2px; background: #e8edf2;
+            border-radius: 2px; transition: 0.3s;
+        }
+        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 100vh;
+            display: flex; align-items: center;
+            position: relative; overflow: hidden;
+            padding-top: 68px;
+        }
+        .hero::before {
+            content: ''; position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 20% 50%, rgba(0, 200, 83, 0.06) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 40% at 80% 20%, rgba(0, 230, 118, 0.04) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 30% at 50% 80%, rgba(0, 200, 83, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Grid overlay */
+        .hero-grid {
+            position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(0, 200, 83, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 200, 83, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+        }
+
+        .hero .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            position: relative; z-index: 1;
+        }
+        .hero-content h1 {
+            font-size: clamp(2.4rem, 5vw, 4rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+        }
+        .hero-content h1 .highlight {
+            background: linear-gradient(135deg, #00c853, #69f0ae);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-content .subtitle {
+            font-size: 1.1rem; color: #9eaaaf; margin-top: 20px;
+            max-width: 480px; line-height: 1.7;
+        }
+        .hero-badges {
+            display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px;
+        }
+        .hero-badges .badge {
+            background: rgba(0, 200, 83, 0.08);
+            border: 1px solid rgba(0, 200, 83, 0.15);
+            border-radius: 100px;
+            padding: 6px 16px;
+            font-size: 0.8rem; font-weight: 500; color: #69f0ae;
+        }
+        .hero-badges .badge i { margin-right: 6px; }
+        .hero-actions {
+            display: flex; flex-wrap: wrap; gap: 16px; margin-top: 36px;
+        }
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 14px 32px; border-radius: 8px;
+            font-weight: 600; font-size: 0.95rem;
+            transition: all 0.25s; cursor: pointer; border: none;
+        }
+        .btn-primary {
+            background: #00c853; color: #0a0c0f;
+        }
+        .btn-primary:hover {
+            background: #00e676; transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 200, 83, 0.25);
+        }
+        .btn-secondary {
+            background: transparent; color: #e8edf2;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .btn-secondary:hover {
+            border-color: #00c853; color: #00c853;
+            transform: translateY(-2px);
+        }
+
+        /* Terminal Mockup */
+        .hero-terminal {
+            background: #0d1117;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s;
+        }
+        .hero-terminal:hover { transform: translateY(-4px); }
+        .terminal-header {
+            display: flex; align-items: center; gap: 8px;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .terminal-header .dot {
+            width: 12px; height: 12px; border-radius: 50%;
+        }
+        .terminal-header .dot:nth-child(1) { background: #ff5f56; }
+        .terminal-header .dot:nth-child(2) { background: #ffbd2e; }
+        .terminal-header .dot:nth-child(3) { background: #27c93f; }
+        .terminal-header span {
+            margin-left: auto; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem; color: #555;
+        }
+        .terminal-body {
+            padding: 20px 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem; line-height: 1.8; color: #c9d1d9;
+            min-height: 280px;
+        }
+        .terminal-body .prompt { color: #00c853; }
+        .terminal-body .cmd { color: #e8edf2; }
+        .terminal-body .output { color: #8b949e; padding-left: 20px; }
+        .terminal-body .output .green { color: #00c853; }
+        .terminal-body .output .blue { color: #58a6ff; }
+        .terminal-body .output .yellow { color: #d29922; }
+        .cursor-blink {
+            display: inline-block;
+            width: 8px; height: 16px;
+            background: #00c853;
+            animation: blink 1s step-end infinite;
+            vertical-align: text-bottom; margin-left: 2px;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* ===== SECTION GLOBAL ===== */
+        section { padding: 100px 0; }
+        .section-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem; font-weight: 500; color: #00c853;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            margin-bottom: 12px;
+        }
+        .section-title {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+        .section-desc {
+            color: #9eaaaf; font-size: 1.05rem;
+            max-width: 600px; line-height: 1.7;
+        }
+        .section-header { margin-bottom: 56px; }
+
+        /* ===== FEATURES ===== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 32px 28px;
+            transition: all 0.3s;
+        }
+        .feature-card:hover {
+            border-color: rgba(0, 200, 83, 0.2);
+            background: rgba(0, 200, 83, 0.03);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+        .feature-icon {
+            width: 48px; height: 48px;
+            background: rgba(0, 200, 83, 0.1);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; margin-bottom: 18px;
+        }
+        .feature-card h3 {
+            font-size: 1.1rem; font-weight: 600; margin-bottom: 10px;
+        }
+        .feature-card p {
+            color: #9eaaaf; font-size: 0.9rem; line-height: 1.7;
+        }
+
+        /* ===== TOOLS ===== */
+        .tools-section { background: rgba(0, 200, 83, 0.02); }
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+        .tool-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 18px 20px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: default;
+        }
+        .tool-item:hover {
+            border-color: rgba(0, 200, 83, 0.2);
+            background: rgba(0, 200, 83, 0.05);
+            transform: translateY(-2px);
+        }
+        .tool-item .tool-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500; font-size: 0.75rem;
+            color: #00c853;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+        .tool-item .tool-desc {
+            color: #8b949e; font-size: 0.8rem;
+        }
+
+        /* ===== DOWNLOADS ===== */
+        .downloads-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .download-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .download-card:hover {
+            border-color: rgba(0, 200, 83, 0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+        .download-card .dl-icon {
+            font-size: 2.5rem; margin-bottom: 16px;
+        }
+        .download-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
+        .download-card p { color: #9eaaaf; font-size: 0.85rem; margin-bottom: 20px; }
+        .btn-dl {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: transparent; color: #00c853;
+            border: 1px solid rgba(0, 200, 83, 0.3);
+            padding: 10px 24px; border-radius: 6px;
+            font-weight: 500; font-size: 0.85rem;
+            transition: all 0.25s; cursor: pointer;
+        }
+        .btn-dl:hover {
+            background: #00c853; color: #0a0c0f;
+        }
+        .version-tag {
+            display: inline-block;
+            background: rgba(0, 200, 83, 0.1);
+            color: #69f0ae;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem; padding: 4px 12px; border-radius: 100px;
+            margin-bottom: 12px;
+        }
+
+        /* ===== BLOG / NEWS ===== */
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .blog-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .blog-card:hover {
+            border-color: rgba(0, 200, 83, 0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+        .blog-card-img {
+            height: 180px;
+            background: linear-gradient(135deg, rgba(0, 200, 83, 0.1), rgba(0, 0, 0, 0.3));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; color: rgba(0, 200, 83, 0.3);
+        }
+        .blog-card-body { padding: 24px; }
+        .blog-card-body .blog-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem; color: #555; margin-bottom: 8px;
+        }
+        .blog-card-body h3 {
+            font-size: 1rem; font-weight: 600; margin-bottom: 8px;
+        }
+        .blog-card-body p {
+            color: #9eaaaf; font-size: 0.85rem; line-height: 1.6;
+        }
+        .blog-card-body .blog-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            margin-top: 14px; font-size: 0.85rem; font-weight: 500;
+            color: #00c853;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 60px 0 32px;
+        }
+        footer .container {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 48px;
+        }
+        .footer-brand .logo-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #00c853, #00e676);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1rem; color: #0a0c0f;
+            font-family: 'JetBrains Mono', monospace; margin-bottom: 12px;
+        }
+        .footer-brand p { color: #8b949e; font-size: 0.85rem; max-width: 280px; }
+        footer h4 {
+            font-size: 0.85rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.05em; margin-bottom: 16px; color: #e8edf2;
+        }
+        footer ul li { margin-bottom: 8px; }
+        footer ul li a { color: #8b949e; font-size: 0.85rem; }
+        footer ul li a:hover { color: #00c853; }
+        .footer-bottom {
+            grid-column: 1 / -1;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding-top: 24px; margin-top: 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.8rem; color: #555;
+        }
+        .footer-socials { display: flex; gap: 16px; }
+        .footer-socials a {
+            width: 36px; height: 36px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: #8b949e; font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .footer-socials a:hover { border-color: #00c853; color: #00c853; }
+
+        /* ===== SCROLL ANIMATIONS ===== */
+        .reveal {
+            opacity: 0; transform: translateY(40px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .hero .container { grid-template-columns: 1fr; gap: 40px; }
+            .hero-content { text-align: center; }
+            .hero-content .subtitle { max-width: 100%; }
+            .hero-badges, .hero-actions { justify-content: center; }
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
+            .downloads-grid { grid-template-columns: repeat(2, 1fr); }
+            .blog-grid { grid-template-columns: repeat(2, 1fr); }
+            footer .container { grid-template-columns: 1fr 1fr; }
+            .tools-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed; top: 68px; left: 0; right: 0;
+                flex-direction: column; gap: 0;
+                background: rgba(10, 12, 15, 0.98);
+                border-bottom: 1px solid rgba(0, 200, 83, 0.1);
+                padding: 16px 0;
+                transform: translateY(-100%); opacity: 0;
+                transition: all 0.3s; pointer-events: none;
+            }
+            .nav-links.open {
+                transform: translateY(0); opacity: 1; pointer-events: all;
+            }
+            .nav-links a {
+                padding: 14px 24px; width: 100%;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            }
+            .nav-links a::after { display: none; }
+            .nav-cta { margin: 12px 24px; text-align: center; }
+            .hamburger { display: flex; }
+
+            section { padding: 60px 0; }
+            .features-grid { grid-template-columns: 1fr; }
+            .downloads-grid { grid-template-columns: 1fr; }
+            .blog-grid { grid-template-columns: 1fr; }
+            .tools-grid { grid-template-columns: repeat(2, 1fr); }
+            footer .container { grid-template-columns: 1fr; gap: 32px; }
+            .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+            .hero-terminal { display: none; }
+            .hero { min-height: auto; padding: 120px 0 60px; }
+            .section-header { text-align: center; }
+            .section-desc { margin: 0 auto; }
+        }
+
+        @media (max-width: 480px) {
+            .tools-grid { grid-template-columns: repeat(2, 1fr); }
+            .hero-actions { flex-direction: column; align-items: center; }
+            .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="#" class="nav-brand">
+                <span class="logo-icon">FT</span>
+                FydelisTechOS
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#features">Recursos</a></li>
+                <li><a href="#tools">Ferramentas</a></li>
+                <li><a href="#downloads">Downloads</a></li>
+                <li><a href="#blog">Blog</a></li>
+                <li><a href="https://fydelistech.blogspot.com/" target="_blank">Wiki</a></li>
+                <li><a href="#downloads" class="nav-cta">Baixar</a></li>
+            </ul>
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="hero">
+        <div class="hero-grid"></div>
+        <div class="container">
+            <div class="hero-content">
+                <h1>
+                    Segurança Ofensiva<br>
+                    <span class="highlight">Sem Compromissos</span>
+                </h1>
+                <p class="subtitle">
+                    Distribuição Debian-based projetada para testes de penetração, 
+                    auditoria de sistemas e segurança ofensiva. Performance máxima, 
+                    zero concessões.
+                </p>
+                <div class="hero-badges">
+                    <span class="badge">✦ Debian-based</span>
+                    <span class="badge">✦ 600+ Ferramentas</span>
+                    <span class="badge">✦ Rolling Release</span>
+                    <span class="badge">✦ Open Source</span>
+                </div>
+                <div class="hero-actions">
+                    <a href="#downloads" class="btn btn-primary">
+                        ⬇ Baixar Agora
+                    </a>
+                    <a href="#features" class="btn btn-secondary">
+                        Explorar Recursos →
+                    </a>
+                </div>
+            </div>
+            <div class="hero-terminal">
+                <div class="terminal-header">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span>fydelistech@os:~</span>
+                </div>
+                <div class="terminal-body" id="terminalBody">
+                    <div><span class="prompt">┌──(fydelistech㉿os)-[~]</span></div>
+                    <div><span class="prompt">└─$</span> <span class="cmd">cat /etc/os-release</span></div>
+                    <div class="output"><span class="green">PRETTY_NAME</span>=<span class="yellow">"FydelisTechOS 2026.1"</span></div>
+                    <div class="output"><span class="green">ID</span>=fydelistechos</div>
+                    <div style="margin-top:8px"><span class="prompt">└─$</span> <span class="cmd">nmap --version</span></div>
+                    <div class="output">Nmap version 7.95 ( <span class="blue">https://nmap.org</span> )</div>
+                    <div style="margin-top:8px"><span class="prompt">└─$</span> <span class="cmd" id="typingCmd"></span><span class="cursor-blink"></span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FEATURES ===== -->
+    <section id="features">
+        <div class="container">
+            <div class="section-header reveal">
+                <p class="section-label">// Recursos</p>
+                <h2 class="section-title">Por que FydelisTechOS?</h2>
+                <p class="section-desc">
+                    Uma plataforma completa para profissionais de segurança, 
+                    construída sobre a estabilidade do Debian com foco total em performance.
+                </p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card reveal">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Performance Otimizada</h3>
+                    <p>Kernel customizado com tuning para auditoria, baixa latência e suporte a hardware de rede avançado.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">🧰</div>
+                    <h3>600+ Ferramentas</h3>
+                    <p>Curadoria das melhores ferramentas de pentest, forense, engenharia reversa e análise de redes.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Rolling Release</h3>
+                    <p>Atualizações contínuas com as versões mais recentes de ferramentas e kernels de segurança.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Modo Furtivo</h3>
+                    <p>Modo de operação discreto com ferramentas de evasão, ofuscação de tráfego e bypass de detecção.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">📦</div>
+                    <h3>Metapackages</h3>
+                    <p>Instalações modulares por especialidade: web, wireless, forense, cloud, mobile e mais.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">🌐</div>
+                    <h3>Multiplataforma</h3>
+                    <p>Disponível para x86, ARM, Raspberry Pi, contêineres Docker, WSL e cloud providers.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TOOLS ===== -->
+    <section class="tools-section" id="tools">
+        <div class="container">
+            <div class="section-header reveal">
+                <p class="section-label">// Ferramentas</p>
+                <h2 class="section-title">Curadoria Profissional</h2>
+                <p class="section-desc">
+                    As ferramentas mais poderosas do ecossistema de segurança, 
+                    pré-instaladas e prontas para uso.
+                </p>
+            </div>
+            <div class="tools-grid">
+                <div class="tool-item reveal"><div class="tool-name">Nmap</div><div class="tool-desc">Scanner de rede</div></div>
+                <div class="tool-item reveal"><div class="tool-name">Metasploit</div><div class="tool-desc">Framework de exploit</div></div>
+                <div class="tool-item reveal"><div class="tool-name">Burp Suite</div><div class="tool-desc">Proxy web</div></div>
+                <div class="tool-item reveal"><div class="tool-name">Wireshark</div><div class="tool-desc">Análise de pacotes</div></div>
+                <div class="tool-item reveal"><div class="tool-name">John the Ripper</div><div class="tool-desc">Quebra de hashes</div></div>
+                <div class="tool-item reveal"><div class="tool-name">Hydra</div><div class="tool-desc">Ataque de credenciais</div></div>
+                <div class="tool-item reveal"><div class="tool-name">SQLmap</div><div class="tool-desc">Injeção SQL</div></div>
+                <div class="tool-item reveal"><div class="tool-name">Hashcat</div><div class="tool-desc">GPU cracking</div></div>
+                <div class="tool-item reveal"><div class="tool-name">Aircrack-ng</div><div class="tool-desc">Wireless audit</div></div>
+                <div class="tool-item reveal"><div class="tool-name">Gobuster</div><div class="tool-desc">Directory fuzzing</div></div>
+                <div class="tool-item reveal"><div class="tool-name">BloodHound</div><div class="tool-desc">AD enumeration</div></div>
+                <div class="tool-item reveal"><div class="tool-name">Impacket</div><div class="tool-desc">Windows protocol</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== DOWNLOADS ===== -->
+    <section id="downloads">
+        <div class="container">
+            <div class="section-header reveal">
+                <p class="section-label">// Downloads</p>
+                <h2 class="section-title">Disponível para Todas as Plataformas</h2>
+                <p class="section-desc">
+                    Escolha a versão ideal para seu ambiente de trabalho.
+                </p>
+            </div>
+            <div class="downloads-grid">
+                <div class="download-card reveal">
+                    <div class="dl-icon">💻</div>
+                    <span class="version-tag">v2026.1</span>
+                    <h3>ISO Completa</h3>
+                    <p>Instalação bare-metal ou dual-boot. Performance máxima com acesso direto ao hardware.</p>
+                    <button class="btn-dl" onclick="handleDownload('iso')">⬇ Download (4.2 GB)</button>
+                </div>
+                <div class="download-card reveal">
+                    <div class="dl-icon">📦</div>
+                    <span class="version-tag">v2026.1</span>
+                    <h3>VM Image</h3>
+                    <p>Pronto para VirtualBox, VMware e QEMU. Snapshots e rede configurados.</p>
+                    <button class="btn-dl" onclick="handleDownload('vm')">⬇ Download (3.8 GB)</button>
+                </div>
+                <div class="download-card reveal">
+                    <div class="dl-icon">🐳</div>
+                    <span class="version-tag">v2026.1</span>
+                    <h3>Docker</h3>
+                    <p>Container leve e instantâneo. Ideal para CI/CD e laboratórios rápidos.</p>
+                    <button class="btn-dl" onclick="handleDownload('docker')">⬇ Docker Pull</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== BLOG ===== -->
+    <section class="tools-section" id="blog">
+        <div class="container">
+            <div class="section-header reveal">
+                <p class="section-label">// Blog</p>
+                <h2 class="section-title">Últimas do Projeto</h2>
+                <p class="section-desc">
+                    Novidades, tutoriais e lançamentos do ecossistema FydelisTechOS.
+                </p>
+            </div>
+            <div class="blog-grid">
+                <article class="blog-card reveal">
+                    <div class="blog-card-img">📰</div>
+                    <div class="blog-card-body">
+                        <p class="blog-date">15 Jul 2026</p>
+                        <h3>FydelisTechOS 2026.1: Novo Tema e 12 Novas Ferramentas</h3>
+                        <p>Atualização traz redesign completo da interface e integração com novos frameworks de exploração.</p>
+                        <a href="#" class="blog-link">Ler mais →</a>
+                    </div>
+                </article>
+                <article class="blog-card reveal">
+                    <div class="blog-card-img">📘</div>
+                    <div class="blog-card-body">
+                        <p class="blog-date">28 Jun 2026</p>
+                        <h3>Guia Completo de Pentest com Kali Linux — Agora Disponível</h3>
+                        <p>Obra de Adiel Santos Fontes cobre do zero ao avançado em testes de penetração com Debian-based.</p>
+                        <a href="https://pt.wikipedia.org/wiki/Seguran%C3%A7a_ofensiva_e_avalia%C3%A7%C3%A3o_de_sistemas_com_Kali_Linux" target="_blank" class="blog-link">Ler mais →</a>
+                    </div>
+                </article>
+                <article class="blog-card reveal">
+                    <div class="blog-card-img">🛡️</div>
+                    <div class="blog-card-body">
+                        <p class="blog-date">10 Jun 2026</p>
+                        <h3>Modo Furtivo 2.0: Evasão Avançada de EDR</h3>
+                        <p>Novo módulo de bypass para Windows Defender e soluções enterprise de endpoint.</p>
+                        <a href="#" class="blog-link">Ler mais →</a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="container">
+            <div class="footer-brand">
+                <div class="logo-icon">FT</div>
+                <p>FydelisTechOS — Distribuição Debian-based para segurança ofensiva, auditoria e testes de penetração.</p>
+            </div>
+            <div>
+                <h4>Plataforma</h4>
+                <ul>
+                    <li><a href="#downloads">Downloads</a></li>
+                    <li><a href="#features">Recursos</a></li>
+                    <li><a href="#tools">Ferramentas</a></li>
+                    <li><a href="#">Documentação</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Comunidade</h4>
+                <ul>
+                    <li><a href="#">GitHub</a></li>
+                    <li><a href="#">Fórum</a></li>
+                    <li><a href="#">Discord</a></li>
+                    <li><a href="https://fydelistech.blogspot.com/" target="_blank">Blog</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Suporte</h4>
+                <ul>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Reportar Bug</a></li>
+                    <li><a href="#">Contribuir</a></li>
+                    <li><a href="#">Privacidade</a></li>
+                </ul>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2026 FydelisTechOS. Open Source sob licença GPL-3.0.</span>
+                <div class="footer-socials">
+                    <a href="#" aria-label="GitHub">GH</a>
+                    <a href="#" aria-label="Twitter">X</a>
+                    <a href="#" aria-label="YouTube">YT</a>
+                    <a href="#" aria-label="Discord">DC</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ===== NAVBAR TOGGLE =====
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('open');
+        });
+
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('open');
+            });
+        });
+
+        // ===== NAVBAR SCROLL SHADOW =====
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // ===== SCROLL REVEAL =====
+        const revealElements = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        revealElements.forEach(el => observer.observe(el));
+
+        // ===== TERMINAL TYPING EFFECT =====
+        const cmdEl = document.getElementById('typingCmd');
+        const commands = [
+            'sudo fydelistech --version',
+            'nmap -sV -sC target.com',
+            'hashcat -m 0 hashes.txt wordlist.txt',
+            'msfconsole -q',
+        ];
+        let cmdIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+
+        function typeEffect() {
+            const currentCmd = commands[cmdIndex];
+            if (!isDeleting) {
+                charIndex++;
+                cmdEl.textContent = currentCmd.substring(0, charIndex);
+                if (charIndex === currentCmd.length) {
+                    setTimeout(() => { isDeleting = true; }, 2000);
+                    setTimeout(typeEffect, 2100);
+                    return;
+                }
+                setTimeout(typeEffect, 50 + Math.random() * 40);
+            } else {
+                charIndex--;
+                cmdEl.textContent = currentCmd.substring(0, charIndex);
+                if (charIndex === 0) {
+                    isDeleting = false;
+                    cmdIndex = (cmdIndex + 1) % commands.length;
+                    setTimeout(typeEffect, 500);
+                    return;
+                }
+                setTimeout(typeEffect, 25 + Math.random() * 20);
+            }
+        }
+        typeEffect();
+
+        // ===== DOWNLOAD HANDLER =====
+        function handleDownload(type) {
+            const labels = { iso: 'ISO', vm: 'VM Image', docker: 'Docker' };
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '⏳ Preparando...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.textContent = '✅ Redirecionando...';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    alert(`Download do ${labels[type]} iniciado!\n(O link real será configurado no deploy.)`);
+                }, 800);
+            }, 600);
+        }
+
+        // ===== DYNAMIC YEAR =====
+        document.querySelector('.footer-bottom span').textContent =
+            `© ${new Date().getFullYear()} FydelisTechOS. Open Source sob licença GPL-3.0.`;
+    </script>
+</body>
+</html>
