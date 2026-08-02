@@ -1,0 +1,5 @@
+User-agent: facebookexternalhit
+Allow: /
+User-agent: WhatsApp
+Allow: /
+Sitemap: https://fydelistechos.com.br/sitemap.xml
