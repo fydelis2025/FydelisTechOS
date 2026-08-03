@@ -1,4 +1,4 @@
-# PERMISSÕES PRIORITÁRIAS PARA COMPARTILHAMENTO
+# PERMISSÕES PRIORITÁRIAS — LEITAS PRIMEIRO
 User-agent: facebookexternalhit
 Allow: /
 
@@ -15,11 +15,7 @@ Allow: /
 User-agent: *
 Allow: /
 
-# INFORMAÇÃO DO SITEMAP
-Sitemap: https://fydelistechos.com.br/sitemap.xml
-
-# (Mantenha aqui abaixo apenas o que você realmente quer bloquear)
-# Exemplo de bloqueios que podem ficar:
+# BLOQUEIOS DE IA (mantidos, mas depois das permissões essenciais)
 User-agent: Amazonbot
 Disallow: /
 User-agent: Applebot-Extended
@@ -34,3 +30,6 @@ User-agent: Google-Extended
 Disallow: /
 User-agent: GPTBot
 Disallow: /
+
+# MAPA DO SITE
+Sitemap: https://fydelistechos.com.br/sitemap.xml
