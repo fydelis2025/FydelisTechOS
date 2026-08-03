@@ -1,5 +1,18 @@
+# Permite acesso total ao robô do Facebook
 User-agent: facebookexternalhit
 Allow: /
+
+# Permite acesso ao robô do WhatsApp
 User-agent: WhatsApp
 Allow: /
+
+# Permite acesso ao robô do Facebook também por esse nome
+User-agent: Facebot
+Allow: /
+
+# Permite acesso a todos os outros robôs de busca
+User-agent: *
+Allow: /
+
+# Indica o mapa do site
 Sitemap: https://fydelistechos.com.br/sitemap.xml
